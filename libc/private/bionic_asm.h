@@ -38,6 +38,8 @@
 
 #if defined(__aarch64__)
 #include <private/bionic_asm_arm64.h>
+#if defined(__rv64__)
+#include <private/bionic_asm_rv64.h>
 #elif defined(__arm__)
 #include <private/bionic_asm_arm.h>
 #elif defined(__i386__)

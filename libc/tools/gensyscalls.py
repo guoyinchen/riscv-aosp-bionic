@@ -18,7 +18,7 @@ import sys
 import tempfile
 
 
-all_arches = [ "arm", "arm64", "mips", "mips64", "x86", "x86_64" ]
+all_arches = [ "arm", "arm64", "rv64", "mips", "mips64", "x86", "x86_64" ]
 
 
 # temp directory where we store all intermediate files
@@ -107,6 +107,21 @@ arm64_call = syscall_stub_header + """\
     cmn     x0, #(MAX_ERRNO + 1)
     cneg    x0, x0, hi
     b.hi    __set_errno_internal
+
+    ret
+END(%(func)s)
+"""
+
+#
+# Lp64 assembler templates for each syscall stub
+#
+
+rv64_call = syscall_stub_header + """\
+    li     a7, %(__NR_name)s
+    ecall  #0
+
+    lui    a7, 0xfffff    
+    bltu   a7, a0, __set_errno_internal
 
     ret
 END(%(func)s)
@@ -311,6 +326,9 @@ def arm_eabi_genstub(syscall):
 
 def arm64_genstub(syscall):
     return arm64_call % syscall
+
+def rv64_genstub(syscall):
+    return rv64_call % syscall
 
 
 def mips_genstub(syscall):
@@ -545,6 +563,9 @@ class State:
 
             if syscall.has_key("arm64"):
                 syscall["asm-arm64"] = add_footer(64, arm64_genstub(syscall), syscall)
+
+            if syscall.has_key("rv64"):
+                syscall["asm-rv64"] = add_footer(64, rv64_genstub(syscall), syscall)
 
             if syscall.has_key("x86"):
                 if syscall["socketcall_id"] >= 0:

@@ -24,4 +24,4 @@ ENTRY(mmap)
     .set pop
 END(mmap)
 
-ALIAS_SYMBOL(mmap64, mmap)
+ALIAS_SYMBOL(mmlp64, mmap)
